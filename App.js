@@ -1,20 +1,79 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function App() {
+
+import HomeScreen from './src/screens/HomeScreen.js';
+import ScannerScreen from './src/screens/ScannerScreen.js';
+import ItemsScreen from './src/screens/ItemsScreen';
+import UsersScreen from './src/screens/UsersScreen.js';
+import AdminScreen from './src/screens/AdminScreen.js';
+
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+function TabNavigator() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Scanner') {
+            iconName = focused ? 'qr-code' : 'qr-code-outline';
+          } else if (route.name === 'Items') {
+            iconName = focused ? 'cube' : 'cube-outline';
+          } else if (route.name === 'Users') {
+            iconName = focused ? 'people' : 'people-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#2196F3',
+        tabBarInactiveTintColor: 'gray',
+        headerStyle: {
+          backgroundColor: '#2196F3',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      })}
+    >
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen} 
+        options={{ title: 'Dashboard' }}
+      />
+      <Tab.Screen 
+        name="Scanner" 
+        component={ScannerScreen}
+        options={{ title: 'Scanner' }}
+      />
+      <Tab.Screen 
+        name="Items" 
+        component={ItemsScreen}
+        options={{ title: 'Itens' }}
+      />
+      <Tab.Screen 
+        name="Users" 
+        component={UsersScreen}
+        options={{ title: 'Usuários' }}
+      />
+    </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <NavigationContainer>
+      <StatusBar style="light" />
+      <TabNavigator />
+    </NavigationContainer>
+  );
+}
