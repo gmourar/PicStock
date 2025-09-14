@@ -36,11 +36,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-barcode-scanner",
-      "expo-camera",
-        {
-          "cameraPermission": "Permitir $(PRODUCT_NAME) acessar sua câmera para escanear códigos e reconhecimento facial."
-        }
-    ]
+  [
+    "expo-camera",
+    {
+      "cameraPermission": "Permitir $(PRODUCT_NAME) acessar sua câmera para escanear códigos e reconhecimento facial."
+    }
+  ],
+  "expo-barcode-scanner"
+]
   }
 }
