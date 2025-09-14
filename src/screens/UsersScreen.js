@@ -45,7 +45,7 @@ export default function UsersScreen() {
       <FAB
         title="+"
         placement="right"
-        color="#2196F3"
+        color="black"
         onPress={() => console.log('Adicionar usuário')}
       />
     </View>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    backgroundColor: '#2196F3',
+    backgroundColor: 'black',
   },
   userInfo: {
     flex: 1,

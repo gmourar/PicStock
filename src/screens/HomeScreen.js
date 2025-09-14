@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   cardValue: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#2196F3',
+    color: '#0000',
     textAlign: 'center',
   },
   recentCard: {

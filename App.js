@@ -34,10 +34,10 @@ function TabNavigator() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2196F3',
+        tabBarActiveTintColor: '#0000',
         tabBarInactiveTintColor: 'gray',
         headerStyle: {
-          backgroundColor: '#2196F3',
+          backgroundColor: 'black',
         },
         headerTintColor: '#fff',
         headerTitleStyle: {

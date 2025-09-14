@@ -41,8 +41,7 @@
     {
       "cameraPermission": "Permitir $(PRODUCT_NAME) acessar sua câmera para escanear códigos e reconhecimento facial."
     }
-  ],
-  "expo-barcode-scanner"
+  ]
 ]
   }
 }

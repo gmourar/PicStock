@@ -41,7 +41,7 @@ export default function ItemsScreen() {
       <FAB
         title="+"
         placement="right"
-        color="#2196F3"
+        color="black"
         onPress={() => console.log('Adicionar item')}
       />
     </View>
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   quantity: {
     fontSize: 16,
-    color: '#2196F3',
+    color: 'black',
     fontWeight: 'bold',
   },
   barcode: {
