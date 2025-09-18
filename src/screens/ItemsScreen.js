@@ -1,49 +1,73 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { Card, Button, FAB } from 'react-native-elements';
+import { listItems } from '../api/items';
 
 export default function ItemsScreen() {
-  const [items] = useState([
-    // dados de exemplo
-    { id: 1, name: 'Item Exemplo 1', barcode: '1234567890', quantity: 10 },
-    { id: 2, name: 'Item Exemplo 2', barcode: '0987654321', quantity: 5 },
-  ]);
+  const [state, setState] = useState({ loading: true, items: [], error: null });
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchItems = useCallback(async () => {
+    try {
+      setState((s) => ({ ...s, loading: true, error: null }));
+      const res = await listItems();
+      setState({ loading: false, items: res.data || [], error: null });
+    } catch (e) {
+      setState({ loading: false, items: [], error: e?.response?.data?.error || e.message });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   const renderItem = ({ item }) => (
     <Card containerStyle={styles.itemCard}>
       <View style={styles.itemHeader}>
         <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.quantity}>Qtd: {item.quantity}</Text>
+        <Text style={styles.quantity}>Qtd: {item.currentQuantity ?? 0}</Text>
       </View>
-      <Text style={styles.barcode}>Código: {item.barcode}</Text>
+      {!!item.barcode && <Text style={styles.barcode}>Código: {item.barcode}</Text>}
       <View style={styles.itemActions}>
-        <Button
-          title="Editar"
-          type="outline"
-          buttonStyle={styles.actionButton}
-        />
-        <Button
-          title="Movimentar"
-          buttonStyle={styles.actionButton}
-        />
+        <Button title="Editar" type="outline" buttonStyle={styles.actionButton} />
+        <Button title="Movimentar" buttonStyle={styles.actionButton} />
       </View>
     </Card>
   );
 
+  if (state.loading && !refreshing) {
+    return (
+      <View style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>
+        <ActivityIndicator />
+        <Text style={{ marginTop: 8, color: '#666' }}>Carregando itens...</Text>
+      </View>
+    );
+  }
+
+  if (state.error) {
+    return (
+      <View style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>
+        <Text style={{ color: '#c00', textAlign: 'center' }}>Erro: {String(state.error)}</Text>
+        <Button title="Tentar novamente" onPress={fetchItems} containerStyle={{ marginTop: 12 }} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={items}
+        data={state.items}
         renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.list}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => {
+          setRefreshing(true);
+          await fetchItems();
+          setRefreshing(false);
+        }} />}
+        ListEmptyComponent={<Text style={{ textAlign: 'center', color: '#666' }}>Nenhum item cadastrado</Text>}
       />
-      <FAB
-        title="+"
-        placement="right"
-        color="black"
-        onPress={() => console.log('Adicionar item')}
-      />
+      <FAB title="+" placement="right" color="black" onPress={() => console.log('Adicionar item')} />
     </View>
   );
 }

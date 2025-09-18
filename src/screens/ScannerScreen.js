@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { Button } from 'react-native-elements';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import { findByCode } from '../api/items';
+import { createMovement } from '../api/movements';
 
 export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -11,19 +14,47 @@ export default function ScannerScreen() {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === 'granted');
     };
-
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const registerMovement = async (itemId, movementType) => {
+    try {
+      const res = await createMovement({
+        itemId,
+        userId: 1, // TODO: integrar com identificação/login do usuário
+        movementType,
+        quantity: 1,
+        notes: `App: ${movementType} via scanner`,
+      });
+      Alert.alert('Sucesso', `Movimento ${movementType} registrado. Novo saldo: ${res.currentQuantity}`, [
+        { text: 'OK', onPress: () => setScanned(false) },
+      ]);
+    } catch (e) {
+      Alert.alert('Erro', e?.response?.data?.error || e.message, [
+        { text: 'OK', onPress: () => setScanned(false) },
+      ]);
+    }
+  };
+
+  const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
-    Alert.alert(
-      'Código Escaneado!',
-      `Tipo: ${type}\nDados: ${data}`,
-      [
-        { text: 'OK', onPress: () => setScanned(false) }
-      ]
-    );
+    try {
+      const res = await findByCode(data);
+      const item = res.data;
+      Alert.alert(
+        'Item encontrado',
+        `${item.name}\nEstoque: ${item.currentQuantity}\nCódigo: ${item.barcode || item.qrCode || data}`,
+        [
+          { text: 'Entrada (IN)', onPress: () => registerMovement(item.id, 'IN') },
+          { text: 'Saída (OUT)', onPress: () => registerMovement(item.id, 'OUT') },
+          { text: 'Cancelar', style: 'cancel', onPress: () => setScanned(false) },
+        ]
+      );
+    } catch (e) {
+      Alert.alert('Não encontrado', e?.response?.data?.error || 'Nenhum item corresponde a este código.', [
+        { text: 'OK', onPress: () => setScanned(false) },
+      ]);
+    }
   };
 
   if (hasPermission === null) {
